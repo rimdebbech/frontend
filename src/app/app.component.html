@@ -1,8 +1,9 @@
-View count: ???<br />
-Comment count: ???<br />
-Search result: true/false (if defined)<br />
+View count: {{backendService.viewCount$ | async}}<br/>
+Comment count: {{backendService.commentCount$ | async}}<br/>
+Search result: <span *ngIf="isPresent">{{searchResult$ | async}}</span><br/>
 Txt: <input type="text" [(ngModel)]="searchTerm.txt" /><br />
 Min: <input type="text" [(ngModel)]="searchTerm.min" /><br />
 Max: <input type="text" [(ngModel)]="searchTerm.max" /><br />
 <button (click)="search()">Search</button>
 <p>{{errorMessage}}</p>
+<p *ngIf="loading">Loading...</p>

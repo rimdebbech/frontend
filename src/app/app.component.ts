@@ -10,7 +10,7 @@ UX and styling will not be evaluated (don't spend time on them).
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { interval, timer, map, Observable } from 'rxjs';
+import { interval, timer, map, Observable, BehaviorSubject, distinctUntilChanged, retry } from 'rxjs';
 
 /*
 Search query representation.
@@ -94,14 +94,39 @@ export class AppComponent {
   backendService = new BackendService();
   searchTerm: SearchTerm = {};
   errorMessage: string = ''; // to display error message to the user
+  isPresent: boolean = false; // a flag to tell if the search result is present or not
+  loading: boolean = false; // a flag to tell the call is pending or completing
+
+  private subjectSearchResult = new BehaviorSubject<boolean>(false);
+  searchResult$: Observable<boolean> = this.subjectSearchResult.asObservable()
 
   // search function is executed on clicking on the button 'Search'
   search(){
     if (this.termIsValid()){ // input validation
+      this.loading = true;
 
+      // Ideally, I will create a service file to call the backend api from there. Then subscribe to my service here.
+      // I understand that since we are using Mock backend service, I will call it from AppComponent
+      // using the instance backService provided.
+      const result = this.backendService.search(this.searchTerm).pipe(
+        distinctUntilChanged(), // emit only if data changes since the last emit
+        retry(1) // retry 1 time on error
+    );
+
+      result.subscribe({
+        next: (data) => {
+          this.isPresent = true; // display the search result by updating the flag
+          this.loading = false; // loading/call is finished
+          this.subjectSearchResult.next(data); // pass the response to the searchResult$
+        },
+        error: (e) => {
+          this.isPresent = false; // in case of error, no need to display the previous searchResult$
+          this.loading = false; // loading/call is finished
+        }
+      });
     }
   }
-  
+
     // function returns false and display error message if input is invalid, else returns true
     termIsValid() : boolean{
       this.errorMessage = ""; // initialize the error message to prevent showing the previous message from previous call.
