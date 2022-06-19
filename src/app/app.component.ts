@@ -88,7 +88,12 @@ TASK:
 })
 export class AppComponent {
   backendService = new BackendService();
+  searchTerm: SearchTerm = {};
 
+  // search function is executed on clicking on the button 'Search'
+  search(){
+
+  }
   // Example how the display method's signature could look like (you are free to change this)
   display(
     viewCount: number,
