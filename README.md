@@ -51,3 +51,17 @@ Navigate to `http://localhost:4200/`. The application will automatically reload 
     I didn't use the display method, since displaying is being done from the beginning in the template with 
     async pipe for both viewCount & commentCount.
     The searchResult is being set once the search is called.
+
+
+#### TASK 4
+
+   4. Error Handling
+      - Call to backend service's `search` method has a chance of throwing an error.
+      If an error is thrown, the request should be retried (if search term hasn't changed)
+
+    The retry is done one time using the following:
+
+    this.backendService.search(this.searchTerm).pipe(
+       retry(1) // retry 1 time on error
+    );
+    

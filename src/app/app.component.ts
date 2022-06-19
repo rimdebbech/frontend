@@ -104,10 +104,11 @@ export class AppComponent {
   search(){
     if (this.termIsValid()){ // input validation
       this.loading = true;
-
-      // Ideally, I will create a service file to call the backend api from there. Then subscribe to my service here.
+      this.isPresent = false;
+      
+      // Ideally, I will create a service file to call the backend api from there. Then subscribe to it here.
       // I understand that since we are using Mock backend service, I will call it from AppComponent
-      // using the instance backService provided.
+      // using the backService instance provided.
       const result = this.backendService.search(this.searchTerm).pipe(
         distinctUntilChanged(), // emit only if data changes since the last emit
         retry(1) // retry 1 time on error
@@ -122,6 +123,7 @@ export class AppComponent {
         error: (e) => {
           this.isPresent = false; // in case of error, no need to display the previous searchResult$
           this.loading = false; // loading/call is finished
+          this.errorMessage = 'Retried one time then quit! \n' + e.message; // significant message to the user
         }
       });
     }
